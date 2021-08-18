@@ -18,7 +18,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private int UserID;
+    private int userID;
     private String firstName;
     private String lastName;
     private String addressDetails;
@@ -36,8 +36,5 @@ public class User {
     private String collegeDetailsGraduation;
     private String collegeDetailsPostGraduation;
 
-    @Column(name = "email_id")
-    private String email;
-    private boolean bench;
 
 }
