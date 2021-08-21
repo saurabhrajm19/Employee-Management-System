@@ -13,7 +13,7 @@ import javax.persistence.Column;
 @Data
 @Table
 @Entity
-public class User {
+public class UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,10 +30,10 @@ public class User {
     private int totalMonthsOfExperience;
     private String previousCompany;
     private int yearOfGraduation;
-    private int yearOfPostGraduation;
     private String degreeObtainedInGraduation;
-    private String degreeObtainedInPostGraduation;
     private String collegeDetailsGraduation;
+    private int yearOfPostGraduation;
+    private String degreeObtainedInPostGraduation;
     private String collegeDetailsPostGraduation;
 
 
