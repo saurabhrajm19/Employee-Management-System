@@ -28,6 +28,7 @@ public class EmployeeController {
         return employeeList;
     }
 
+    /*
     @PostMapping("/")
     public void createEmployee(@RequestBody String response)throws ParseException {
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
@@ -46,8 +47,8 @@ public class EmployeeController {
         employee.setJobProfiles(jobProfiles);
         employee.setBusinessUnit(businessUnit);
         //employee.setProjectList(project);
-        employeeServices.save(employee);
-    }
+        //employeeServices.save(employee);
+    }*/
 
 }
 

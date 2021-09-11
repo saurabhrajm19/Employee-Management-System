@@ -1,27 +1,34 @@
 package com.employee.employeemanagementsystem.entities;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Table
 @Entity
 public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int employeeId;
+    private String employmentCode;
     private String firstName;
     private String lastName;
 
-    @Column(name = "email_id")
     private String email;
     private boolean bench;
-    private String dateOfJoining;
+
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    private LocalDate dateOfJoining;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
