@@ -44,17 +44,20 @@ public class EmployeeServices {
             employee.setFirstName(userDetails.getFirstName());
             employee.setLastName(userDetails.getLastName());
             employee.setDateOfJoining(LocalDate.now());
-            employee.setEmploymentCode(createEmploymentCode(employee));
+
             //employee.setEmploymentCode("123");
             employee.setEmail(createEmailId(employee));
             employee.setBench(false);
             Employment employment = employmentServices.findById(userDetails.getEmploymentType()).orElseThrow(() -> new EntityNotFoundException("Employment type not found" + userDetails.getEmploymentType()));
-            employee.setEmployment(employment);
             JobProfiles jobProfiles = jobProfilesServices.findById(userDetails.getJobRole()).orElseThrow(() -> new EntityNotFoundException("Job role not found" + userDetails.getJobRole()));
+            employee.setEmployment(employment);
             //Optional<JobProfiles> optionalJobProfiles =  jobProfilesServices.findById(userDetails.getJobRole());
             //JobProfiles jobProfiles = optionalJobProfiles.get();
             employee.setJobProfiles(jobProfiles);
             employee.setUserDetails(userDetails);
+
+            employeeRepository.save(employee);
+            employee.setEmploymentCode(createEmploymentCode(employee));
             employeeRepository.save(employee);
         } catch (Exception e) {
             throw new MyCustomException(e.getMessage());
@@ -97,29 +100,28 @@ public class EmployeeServices {
     private String createEmploymentCode(Employee employee) throws MyCustomException {
 
         String employmentCode = "";
-        if (employee.getEmployment().getEmploymentType() == null) {
-            //throwing an exception if employee type is null because,
-            // that is what based on we create the employee id
-            throw new MyCustomException("Employment type cannot be null");
-        }
-        if (employee.getEmploymentCode() == null) {
+        try {
             if (employee.getEmployment().getEmploymentType().equals("STE")) {
                 employmentCode = buildSteId(employee.getEmployeeId());
             } else if (employee.getEmployment().getEmploymentType().equals("FTE")) {
+                /*
                 LocalDate date = LocalDate.now(); //get today's date to compare with the joining date
                 SimpleDateFormat localDate = new SimpleDateFormat("yyyy-MM-dd");
                 Period diff = Period.between(employee.getDateOfJoining(), date);
-                System.out.println(date+"\n"+localDate+"\n"+diff);
+                System.out.println(date + "\n" + localDate + "\n" + diff);
                 if (diff.toString().startsWith("P3M" + ";")) {
                     employmentCode = buildFteId(employee.getEmployeeId());
                 } else {
                     employmentCode = buildInternId(employee.getEmployeeId());
-                }
+                }*/
+                employmentCode = buildFteId(employee.getEmployeeId());
             } else {
                 employmentCode = buildInternId(employee.getEmployeeId());
             }
+            return employmentCode;
+        } catch (Exception e) {
+            throw new MyCustomException(e.getMessage());
         }
-        return employmentCode;
     }
 
     String buildSteId(int id) {
@@ -131,7 +133,8 @@ public class EmployeeServices {
     String buildFteId(int id) {
         Date date = new Date();
         SimpleDateFormat year = new SimpleDateFormat("yyyy");
-        return "HOP-" + year.format(date) + "-FTE-" + String.format("%04d", id);
+        String employmentCode = "HOP-" + year.format(date) + "-FTE-" + String.format("%04d", id);
+        return employmentCode;
     }
 
 
