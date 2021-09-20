@@ -2,7 +2,8 @@ package com.employee.employeemanagementsystem.services;
 
 import com.employee.employeemanagementsystem.entities.Employee;
 import com.employee.employeemanagementsystem.entities.UserDetails;
-import com.employee.employeemanagementsystem.exceptions.MyCustomException;
+import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
+import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.repository.EmployeeRepository;
 import com.employee.employeemanagementsystem.repository.UserDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,15 @@ public class UserDetailsServices {
     @Autowired
     private EmployeeServices employeeServices;
 
-    public List<UserDetails> findAll(){
+    public List<UserDetails> findAll() throws NotFoundException {
         List<UserDetails> getUserDetailsList = userDetailsRepository.findAll();
+        if (getUserDetailsList.isEmpty()) {
+            throw new NotFoundException("No user details found!");
+        }
         return getUserDetailsList;
     }
 
-    public void save(UserDetails userDetails) throws MyCustomException {
+    public void save(UserDetails userDetails) throws BadDetailsException, NotFoundException {
         userDetailsRepository.save(userDetails);
         employeeServices.save(userDetails);
     }

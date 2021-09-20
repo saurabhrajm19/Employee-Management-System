@@ -1,8 +1,11 @@
 package com.employee.employeemanagementsystem.controller;
 
-import com.employee.employeemanagementsystem.entities.Employment;
-import com.employee.employeemanagementsystem.services.EmploymentServices;
+import com.employee.employeemanagementsystem.entities.EmploymentType;
+import com.employee.employeemanagementsystem.exceptions.NotFoundException;
+import com.employee.employeemanagementsystem.services.EmploymentTypeServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,16 +15,20 @@ import java.util.List;
 public class EmploymentController {
 
     @Autowired
-    private EmploymentServices employmentServices;
+    private EmploymentTypeServices employmentTypeServices;
 
     @GetMapping("/")
-    public List<Employment> getAllEmployments(){
-        List<Employment> employmentList = employmentServices.findAll();
-        return employmentList;
+    public ResponseEntity<Object> getAllEmployments(){
+        try {
+            List<EmploymentType> employmentTypeList = employmentTypeServices.findAll();
+            return new ResponseEntity<>(employmentTypeList, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/")
-    public void createEmployment(@RequestBody Employment employment){
-        employmentServices.save(employment);
+    public void createEmployment(@RequestBody EmploymentType employmentType){
+        employmentTypeServices.save(employmentType);
     }
 }

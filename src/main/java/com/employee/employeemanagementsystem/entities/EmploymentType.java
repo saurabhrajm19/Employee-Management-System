@@ -8,14 +8,14 @@ import java.util.List;
 @Data
 @Table
 @Entity
-public class Employment {
+public class EmploymentType {
 
     @Id
     //private int empid;
     private String employmentType;
     private int noticePeriod;
 
-    @OneToMany(mappedBy = "employment")
+    @OneToMany(mappedBy = "employmentType")
     private List<Employee> employeeList;
 
 }

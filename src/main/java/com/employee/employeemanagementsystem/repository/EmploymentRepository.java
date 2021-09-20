@@ -1,9 +1,9 @@
 package com.employee.employeemanagementsystem.repository;
 
-import com.employee.employeemanagementsystem.entities.Employment;
+import com.employee.employeemanagementsystem.entities.EmploymentType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmploymentRepository extends JpaRepository<Employment, String> {
+public interface EmploymentRepository extends JpaRepository<EmploymentType, String> {
 }

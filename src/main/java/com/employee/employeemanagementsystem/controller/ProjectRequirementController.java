@@ -1,8 +1,11 @@
 package com.employee.employeemanagementsystem.controller;
 
 import com.employee.employeemanagementsystem.entities.ProjectRequirement;
+import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.services.ProjectRequirementServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,9 +18,13 @@ public class ProjectRequirementController {
     private ProjectRequirementServices projectRequirementServices;
 
     @GetMapping("/")
-    public List<ProjectRequirement> getAllProjectRequirements(){
-        List<ProjectRequirement> projectRequirementList = projectRequirementServices.findAll();
-        return projectRequirementList;
+    public ResponseEntity<Object> getAllProjectRequirements(){
+        try {
+            List<ProjectRequirement> projectRequirementList = projectRequirementServices.findAll();
+            return new ResponseEntity<>(projectRequirementList, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/")

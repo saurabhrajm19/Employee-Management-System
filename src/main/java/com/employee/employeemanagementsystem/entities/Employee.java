@@ -25,6 +25,8 @@ public class Employee {
 
     private String email;
     private boolean bench;
+    private boolean noticed;
+    private LocalDate noticeDate;
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -36,7 +38,7 @@ public class Employee {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "employment_type")
-    private Employment employment;
+    private EmploymentType employmentType;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "job_role")

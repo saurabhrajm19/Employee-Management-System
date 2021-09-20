@@ -1,11 +1,14 @@
 package com.employee.employeemanagementsystem.controller;
 
 import com.employee.employeemanagementsystem.entities.*;
+import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.services.ProjectServices;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -19,9 +22,13 @@ public class ProjectController {
     private ProjectServices projectServices;
 
     @GetMapping("/")
-    public List<Project> getAllProjects(){
-        List<Project> projectList = projectServices.findAll();
-        return projectList;
+    public ResponseEntity<Object> getAllProjects(){
+        try {
+            List<Project> projectList = projectServices.findAll();
+            return new ResponseEntity<>(projectList, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/")
