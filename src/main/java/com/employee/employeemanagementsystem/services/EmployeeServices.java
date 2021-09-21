@@ -54,15 +54,14 @@ public class EmployeeServices {
         employee.setFirstName(userDetails.getFirstName());
         employee.setLastName(userDetails.getLastName());
         employee.setDateOfJoining(LocalDate.now());
-        //employee.setEmploymentCode("123");
         employee.setEmail(createEmailId(employee));
         employee.setBench(false);
 
-        // TODO -> Check if the jobProfiles is null or not
         if(employmentTypeServices.findAll().isEmpty()){
             throw new IllegalArgumentException("Employment type table cannot be empty");
         }
         EmploymentType employmentType = employmentTypeServices.findById(userDetails.getEmploymentType()).orElseThrow(() -> new EntityNotFoundException("EmploymentType type not found" + userDetails.getEmploymentType()));
+
         if(jobProfilesServices.findAll().isEmpty()){
             throw new IllegalArgumentException("Job profile table cannot be empty");
         }
@@ -71,16 +70,10 @@ public class EmployeeServices {
         employee.setEmploymentType(employmentType);
         employee.setJobProfiles(jobProfiles);
         employee.setUserDetails(userDetails);
-
         employeeRepository.save(employee);
         employee.setEmploymentCode(createEmploymentCode(employee));
         employeeRepository.save(employee);
     }
-
-    /*public void setBu(int empid, String BU){
-        Employee employee = ;
-        BusinessUnit businessUnit = ;
-    }*/
 
     private String validateUser(UserDetails userDetails, boolean newUser) {
         if (newUser) {
@@ -121,7 +114,6 @@ public class EmployeeServices {
         if (userPhone.length() != 10) {
             return "Enter a valid 10 digit Phone Number";
         }
-
         return "valid";
     }
 
@@ -178,29 +170,20 @@ public class EmployeeServices {
         return string;
     }
 
-
-
-
     private String createEmailId(Employee employee) {
         String domain = "@hoppipolla.com";
 
         String id = employee.getFirstName().toLowerCase() + "." + employee.getLastName().toLowerCase();
-        //finding and fetching if there ar other employees starting with the same id
         List<Employee> list = employeeRepository.findByEmailStartingWith(id);
-        if (!list.isEmpty()) { //starting with the same id are found
-            //getting only the id list removing the domain name at the end
+        if (!list.isEmpty()) {
             List<String> emailIdList = list.stream().map(x -> x.getEmail().split("@")[0]).collect(Collectors.toList());
-            //sorting the ids if there are many with numbers at the end already
             emailIdList = emailIdList.stream().sorted(String::compareTo).collect(Collectors.toList());
-            //getting the last id because that will be the id with highest number
             String lastEmail = emailIdList.get(emailIdList.size() - 1);
-            //there could be only one email id with no trailing number, so checking it
             if (lastEmail.matches(".*[0-9]")) {
-                //if there is already a number at the end, increment the number and append it to the id
                 int val = lastEmail.charAt(lastEmail.length() - 1) - '0';
                 id += val + 1;
             } else {
-                id += 1; //if there is no number already, just append 1 to it
+                id += 1;
             }
         }
         return id+domain;
@@ -208,20 +191,9 @@ public class EmployeeServices {
 
     private String createEmploymentCode(Employee employee) {
         String employmentCode = "";
-
         if (employee.getEmploymentType().getEmploymentType().equals("STE")) {
             employmentCode = buildSteId(employee.getEmployeeId());
         } else if (employee.getEmploymentType().getEmploymentType().equals("FTE")) {
-            /*
-            LocalDate date = LocalDate.now(); //get today's date to compare with the joining date
-            SimpleDateFormat localDate = new SimpleDateFormat("yyyy-MM-dd");
-            Period diff = Period.between(employee.getDateOfJoining(), date);
-            System.out.println(date + "\n" + localDate + "\n" + diff);
-            if (diff.toString().startsWith("P3M" + ";")) {
-                employmentCode = buildFteId(employee.getEmployeeId());
-            } else {
-                employmentCode = buildInternId(employee.getEmployeeId());
-            }*/
             employmentCode = buildFteId(employee.getEmployeeId());
         } else {
             employmentCode = buildInternId(employee.getEmployeeId());
@@ -242,6 +214,5 @@ public class EmployeeServices {
         return employmentCode;
     }
 
-
-
 }
+

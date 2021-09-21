@@ -2,7 +2,6 @@ package com.employee.employeemanagementsystem.controller;
 
 import com.employee.employeemanagementsystem.entities.UserDetails;
 import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
-import com.employee.employeemanagementsystem.exceptions.MyCustomException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.services.UserDetailsServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,30 @@ public class UserDetailsController {
     public String onBoardSTE(@RequestBody UserDetails userDetails) {
         try {
             userDetails.setEmploymentType("STE");
+            userDetailsServices.save(userDetails);
+            String response = "Done";
+            return response;
+        } catch (NotFoundException | BadDetailsException e) {
+            return e.getMessage();
+        }
+    }
+
+    @PostMapping("/onBoardFTE")
+    public String onBoardFTE(@RequestBody UserDetails userDetails) {
+        try {
+            userDetails.setEmploymentType("FTE");
+            userDetailsServices.save(userDetails);
+            String response = "Done";
+            return response;
+        } catch (NotFoundException | BadDetailsException e) {
+            return e.getMessage();
+        }
+    }
+
+    @PostMapping("/onBoardIntern")
+    public String onBoardIntern(@RequestBody UserDetails userDetails) {
+        try {
+            userDetails.setEmploymentType("INT");
             userDetailsServices.save(userDetails);
             String response = "Done";
             return response;

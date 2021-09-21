@@ -1,12 +1,10 @@
 package com.employee.employeemanagementsystem.entities;
 
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Data;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -53,3 +51,4 @@ public class Employee {
             inverseJoinColumns = @JoinColumn(name = "project_id"))
     private List<Project> projectList = new ArrayList<>();
 }
+

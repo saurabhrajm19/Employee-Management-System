@@ -6,12 +6,10 @@ import javax.persistence.*;
 import java.util.List;
 
 @Data
-@Table
 @Entity
 public class EmploymentType {
 
     @Id
-    //private int empid;
     private String employmentType;
     private int noticePeriod;
 

@@ -12,13 +12,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("employment")
-public class EmploymentController {
+public class EmploymentTypeController {
 
     @Autowired
     private EmploymentTypeServices employmentTypeServices;
 
     @GetMapping("/")
-    public ResponseEntity<Object> getAllEmployments(){
+    public ResponseEntity<Object> getAllEmploymentTypes(){
         try {
             List<EmploymentType> employmentTypeList = employmentTypeServices.findAll();
             return new ResponseEntity<>(employmentTypeList, HttpStatus.OK);
@@ -28,7 +28,7 @@ public class EmploymentController {
     }
 
     @PostMapping("/")
-    public void createEmployment(@RequestBody EmploymentType employmentType){
+    public void createEmploymentType(@RequestBody EmploymentType employmentType){
         employmentTypeServices.save(employmentType);
     }
 }

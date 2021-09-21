@@ -5,7 +5,6 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Data
-@Table
 @Entity
 public class ProjectRequirement {
 

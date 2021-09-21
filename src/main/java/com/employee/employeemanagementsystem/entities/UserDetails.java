@@ -1,8 +1,6 @@
 package com.employee.employeemanagementsystem.entities;
 
-
 import lombok.Data;
-
 import javax.persistence.*;
 
 @Data
@@ -33,6 +31,5 @@ public class UserDetails {
 
     @OneToOne(mappedBy = "userDetails")
     private Employee employee;
-
 
 }
