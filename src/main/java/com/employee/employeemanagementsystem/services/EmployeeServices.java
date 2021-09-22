@@ -28,6 +28,8 @@ public class EmployeeServices {
     private EmploymentTypeServices employmentTypeServices;
     @Autowired
     private JobProfilesServices jobProfilesServices;
+    @Autowired
+    private BusinessUnitServices businessUnitServices;
 
     public List<Employee> findAll() throws NotFoundException {
         List<Employee> getEmployeeList = employeeRepository.findAll();
@@ -75,46 +77,35 @@ public class EmployeeServices {
         employeeRepository.save(employee);
     }
 
-    private String validateUser(UserDetails userDetails, boolean newUser) {
-        if (newUser) {
-            if (userDetails.getFirstName() == null) {
-                return "First name cannot be null";
-            }
-            if (userDetails.getLastName() == null) {
-                return "Last name cannot be null";
-            }
-            if (Objects.isNull(userDetails.getPrimaryContact())) {
-                return "Primary contact field cannot be empty";
-            }
-            if (userDetails.getAddressDetails() == null) {
-                return "Address cannot be empty";
-            }
-            if (userDetails.getCity() == null) {
-                return "City cannot be empty";
-            }
-            if (Objects.isNull(userDetails.getPincode()) || userDetails.getPincode() == 0) {
-                return "Pincode cannot be empty";
-            }
-            if (userDetails.getState() == null) {
-                return "State cannot be empty";
-            }
-            if (Objects.isNull(userDetails.getTotalMonthsOfExperience())) {
-                return "Total months of experience cannot be empty";
-            }
-            if (userDetails.getEmploymentType() == null) {
-                return "Employment type cannot be empty";
-            }
-            if (userDetails.getJobRole() == null) {
-                return "Job Role cannot be empty";
-            }
-
+    public String fetchEmployeeDetails(String employmentCode) throws NotFoundException {
+        if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
+            throw new NotFoundException("No employee with given id found!");
         }
+        String string = employeeRepository.findByEmploymentCode(employmentCode).toString();
+        string += employeeRepository.findByEmploymentCode(employmentCode).getUserDetails().toString();
+        return string;
+    }
 
-        String userPhone = String.valueOf(userDetails.getPrimaryContact());
-        if (userPhone.length() != 10) {
-            return "Enter a valid 10 digit Phone Number";
+    public String updateJobRole(String employmentCode, String updatedJobRole) throws NotFoundException {
+        if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
+            throw new NotFoundException("No employee with given id found!");
         }
-        return "valid";
+        Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
+        JobProfiles jobProfiles = jobProfilesServices.findById(updatedJobRole).orElseThrow(() -> new EntityNotFoundException("Job role not found" + updatedJobRole));
+        employee.setJobProfiles(jobProfiles);
+        employeeRepository.save(employee);
+        return employee.getJobProfiles().getJobRole();
+    }
+
+    public String assignBusinessUnit(String employmentCode, String buName) throws NotFoundException {
+        if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
+            throw new NotFoundException("No employee with given id found!");
+        }
+        Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
+        BusinessUnit businessUnit = businessUnitServices.findByBuName(buName);
+        employee.setBusinessUnit(businessUnit);
+        employeeRepository.save(employee);
+        return employee.getBusinessUnit().getBuName();
     }
 
     public String resignNotice(String employmentCode) throws IllegalArgumentException, NotFoundException {
@@ -160,17 +151,48 @@ public class EmployeeServices {
         return employeeRepository.findByDateOfJoining(localDate);
     }
 
-    public String fetchEmployee(String employeeId) throws NotFoundException {
-        if (employeeRepository.findByEmploymentCode(employeeId) == null) {
-            throw new NotFoundException("No employee with given id found!");
+    public String validateUser(UserDetails userDetails, boolean newUser) {
+        if (newUser) {
+            if (userDetails.getFirstName() == null) {
+                return "First name cannot be null";
+            }
+            if (userDetails.getLastName() == null) {
+                return "Last name cannot be null";
+            }
+            if (Objects.isNull(userDetails.getPrimaryContact())) {
+                return "Primary contact field cannot be empty";
+            }
+            if (userDetails.getAddressDetails() == null) {
+                return "Address cannot be empty";
+            }
+            if (userDetails.getCity() == null) {
+                return "City cannot be empty";
+            }
+            if (Objects.isNull(userDetails.getPincode()) || userDetails.getPincode() == 0) {
+                return "Pincode cannot be empty";
+            }
+            if (userDetails.getState() == null) {
+                return "State cannot be empty";
+            }
+            if (Objects.isNull(userDetails.getTotalMonthsOfExperience())) {
+                return "Total months of experience cannot be empty";
+            }
+            if (userDetails.getEmploymentType() == null) {
+                return "Employment type cannot be empty";
+            }
+            if (userDetails.getJobRole() == null) {
+                return "Job Role cannot be empty";
+            }
         }
 
-        String string = employeeRepository.findByEmploymentCode(employeeId).toString();
-        string += employeeRepository.findByEmploymentCode(employeeId).getUserDetails().toString();
-        return string;
+        String userPhone = String.valueOf(userDetails.getPrimaryContact());
+        if (userPhone.length() != 10) {
+            return "Enter a valid 10 digit Phone Number";
+        }
+        return "valid";
     }
 
-    private String createEmailId(Employee employee) {
+    public String createEmailId(Employee employee) {
         String domain = "@hoppipolla.com";
 
         String id = employee.getFirstName().toLowerCase() + "." + employee.getLastName().toLowerCase();
@@ -189,7 +211,7 @@ public class EmployeeServices {
         return id+domain;
     }
 
-    private String createEmploymentCode(Employee employee) {
+    public String createEmploymentCode(Employee employee) {
         String employmentCode = "";
         if (employee.getEmploymentType().getEmploymentType().equals("STE")) {
             employmentCode = buildSteId(employee.getEmployeeId());
@@ -201,13 +223,13 @@ public class EmployeeServices {
         return employmentCode;
     }
 
-    private String buildSteId(int id) {
+    public String buildSteId(int id) {
         return "HOP-STE-" + String.format("%04d", id);
     }
-    private String buildInternId(int id) {
+    public String buildInternId(int id) {
         return "HOP-INT-" + String.format("%04d", id);
     }
-    private String buildFteId(int id) {
+    public String buildFteId(int id) {
         Date date = new Date();
         SimpleDateFormat year = new SimpleDateFormat("yyyy");
         String employmentCode = "HOP-" + year.format(date) + "-FTE-" + String.format("%04d", id);

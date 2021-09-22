@@ -3,6 +3,9 @@ package com.employee.employeemanagementsystem.controller;
 import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.services.EmployeeServices;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
@@ -41,9 +44,9 @@ public class EmployeeController {
     }
 
     @GetMapping(value = "/{employmentCode}")
-    public String getEmployee(@PathVariable String employmentCode) {
+    public String getEmployeeDetails(@PathVariable String employmentCode) {
         try {
-            return employeeServices.fetchEmployee(employmentCode);
+            return employeeServices.fetchEmployeeDetails(employmentCode);
         } catch (NotFoundException e) {
             return e.getMessage();
         }
@@ -64,6 +67,30 @@ public class EmployeeController {
             return new ResponseEntity<>(employeeServices.completesNoticePeriod(date), HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping(value = "/update-jobRole/{employmentCode}")
+    public String updateJobRole(@RequestBody String response){
+        JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
+        String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
+        String updatedJobRole = new Gson().fromJson(jsonObject.get("updatedJobRole"), String.class);
+        try {
+            return employeeServices.updateJobRole(employmentCode, updatedJobRole);
+        } catch (NotFoundException e) {
+            return e.getMessage();
+        }
+    }
+
+    @PutMapping(value = "/assign-bu/{employmentCode}")
+    public String assignBusinessUnit(@RequestBody String response){
+        JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
+        String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
+        String businessUnit = new Gson().fromJson(jsonObject.get("businessUnit"), String.class);
+        try {
+            return employeeServices.assignBusinessUnit(employmentCode, businessUnit);
+        } catch (NotFoundException e) {
+            return e.getMessage();
         }
     }
 

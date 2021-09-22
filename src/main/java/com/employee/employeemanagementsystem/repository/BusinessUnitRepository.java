@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BusinessUnitRepository extends JpaRepository<BusinessUnit, Integer> {
+    BusinessUnit findByBuName(String buName);
 }
