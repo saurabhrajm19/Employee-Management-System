@@ -21,10 +21,10 @@ public class UserDetails {
     private int totalMonthsOfExperience;
     private String previousCompany;
     private int yearOfGraduation;
-    private String degreeObtainedInGraduation;
+    private String degreeTypeInGraduation;
     private String collegeDetailsGraduation;
     private int yearOfPostGraduation;
-    private String degreeObtainedInPostGraduation;
+    private String degreeTypeInPostGraduation;
     private String collegeDetailsPostGraduation;
     private String employmentType;
     private String jobRole;

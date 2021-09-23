@@ -5,6 +5,7 @@ import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.repository.EmployeeRepository;
 import com.employee.employeemanagementsystem.repository.UserDetailsRepository;
+import static com.employee.employeemanagementsystem.myconstants.JobRoles.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,7 @@ public class EmployeeServices {
         if (!userDetailsValidation.equals("valid")) {
             throw new BadDetailsException("User Details are invalid: " + userDetailsValidation);
         }
+
         Employee employee = new Employee();
         employee.setFirstName(userDetails.getFirstName());
         employee.setLastName(userDetails.getLastName());
@@ -71,9 +73,11 @@ public class EmployeeServices {
 
         employee.setEmploymentType(employmentType);
         employee.setJobProfiles(jobProfiles);
-        employee.setUserDetails(userDetails);
         employeeRepository.save(employee);
         employee.setEmploymentCode(createEmploymentCode(employee));
+        if(userDetails.getJobRole() == null)
+            userDetails.setJobRole(assignJobRole(employee.getEmploymentCode()));
+        employee.setUserDetails(userDetails);
         employeeRepository.save(employee);
     }
 
@@ -81,8 +85,7 @@ public class EmployeeServices {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
             throw new NotFoundException("No employee with given id found!");
         }
-        String string = employeeRepository.findByEmploymentCode(employmentCode).toString();
-        return string;
+        return employeeRepository.findByEmploymentCode(employmentCode).toString();
     }
 
     public String updateJobRole(String employmentCode, String updatedJobRole) throws NotFoundException {
@@ -107,6 +110,41 @@ public class EmployeeServices {
         return employee.getBusinessUnit().getBuName();
     }
 
+    public String assignJobRole(String employmentCode) throws NotFoundException {
+        if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
+            throw new NotFoundException("No employee with given id found!");
+        }
+        Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
+        int exp = employee.getUserDetails().getTotalMonthsOfExperience()/12;
+        String degree = "";
+        if (employee.getUserDetails().getDegreeTypeInPostGraduation() != null)
+            degree =  employee.getUserDetails().getDegreeTypeInPostGraduation();
+        else
+            degree = employee.getUserDetails().getDegreeTypeInGraduation();
+
+        switch (degree.toUpperCase()) {
+            case DEGREES.TECHNICAL:
+                return assignTechnicalRole(exp);
+            case DEGREES.MANAGEMENT:
+                return assignManagementRole(exp);
+            case DEGREES.RECRUITMENT:
+                return assignRecruitmentRole(exp);
+            case DEGREES.FINANCE:
+                return assignFinanceRole(exp);
+            case DEGREES.HR:
+                return assignHrRole(exp);
+            default:
+                throw new NotFoundException("Degree not found");
+        }
+    }
+
+    public void deleteByEmploymentCode(String employmentCode) throws NotFoundException {
+        if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
+            throw new NotFoundException("No employee with given id found!");
+        }
+        employeeRepository.deleteByEmploymentCode(employmentCode);
+    }
+
     public String resignNotice(String employmentCode) throws IllegalArgumentException, NotFoundException {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null){
             throw new NotFoundException("No employee with the given id found!");
@@ -116,7 +154,7 @@ public class EmployeeServices {
             employee.setNoticed(true);
             LocalDate currentDate = LocalDate.now();
             employee.setNoticeDate(currentDate);
-            employee = employeeRepository.save(employee);
+            employeeRepository.save(employee);
             return "Noticed on " + currentDate.toString();
         } else {
             throw new IllegalArgumentException("Already noticed on "+ employee.getNoticeDate());
@@ -178,9 +216,6 @@ public class EmployeeServices {
             if (userDetails.getEmploymentType() == null) {
                 return "Employment type cannot be empty";
             }
-            if (userDetails.getJobRole() == null) {
-                return "Job Role cannot be empty";
-            }
         }
 
         String userPhone = String.valueOf(userDetails.getPrimaryContact());
@@ -208,7 +243,6 @@ public class EmployeeServices {
         }
         return id+domain;
     }
-
     public String createEmploymentCode(Employee employee) {
         String employmentCode = "";
         if (employee.getEmploymentType().getEmploymentType().equals("STE")) {
@@ -220,7 +254,6 @@ public class EmployeeServices {
         }
         return employmentCode;
     }
-
     public String buildSteId(int id) {
         return "HOP-STE-" + String.format("%04d", id);
     }
@@ -232,6 +265,50 @@ public class EmployeeServices {
         SimpleDateFormat year = new SimpleDateFormat("yyyy");
         String employmentCode = "HOP-" + year.format(date) + "-FTE-" + String.format("%04d", id);
         return employmentCode;
+    }
+
+    private String assignHrRole(int exp) {
+        if (exp>=0 && exp<8) {
+            return HR_ROLES.HR_EXEC;
+        }else {
+            return HR_ROLES.HR_HEAD;
+        }
+    }
+    private String assignFinanceRole(int exp) {
+        if (exp>=0 && exp<8) {
+            return FINANCE_ROLES.FIN_EXEC;
+        }else {
+            return FINANCE_ROLES.FIN_HEAD;
+        }
+    }
+    private String assignRecruitmentRole(int exp) {
+        if (exp>=0 && exp<8) {
+            return RECRUITMENT_ROLES.REC_SPECIALS;
+        }else {
+            return RECRUITMENT_ROLES.REC_HEAD;
+        }
+    }
+    private String assignManagementRole(int exp) {
+        if (exp>=0 && exp<5) {
+            return MANAGEMENT_ROLES.APM;
+        } else if (exp>=5 && exp<10) {
+            return MANAGEMENT_ROLES.PM;
+        } else {
+            return MANAGEMENT_ROLES.SPM;
+        }
+    }
+    private String assignTechnicalRole(int exp) {
+        if (exp>=0 && exp<2) {
+            return TECHNICAL_ROLES.SDE_1;
+        } else if (exp>=2 && exp<5) {
+            return TECHNICAL_ROLES.SDE_2;
+        } else if (exp>=5 && exp<8) {
+            return TECHNICAL_ROLES.SDE_3;
+        } else if (exp>=8 && exp<10) {
+            return TECHNICAL_ROLES.LEAD;
+        } else {
+            return TECHNICAL_ROLES.EM;
+        }
     }
 
 }

@@ -15,4 +15,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>{
     List<Employee> findByNoticed(boolean noticed);
     List<Employee> findByDateOfJoiningBetween(LocalDate date1, LocalDate date2);
     List<Employee> findByDateOfJoining(LocalDate date);
+    int deleteByEmploymentCode(String employmentCode);
 }

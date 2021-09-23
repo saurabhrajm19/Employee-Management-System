@@ -64,7 +64,7 @@ public class UserDetailsControllerTest {
         UserDetails userDetails = new UserDetails();
         userDetails.setLastName("ji");
         //when(userDetailsServices.save(Mockito.any(<userDetails>))).thenReturn(null);
-        when(userDetailsServices.save(<T> userDetails)).thenReturn(userDetails);
+        when(userDetailsServices.save(userDetails)).thenReturn(userDetails);
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/userDetails/onBoardSTE")
                 .accept(MediaType.APPLICATION_JSON);
