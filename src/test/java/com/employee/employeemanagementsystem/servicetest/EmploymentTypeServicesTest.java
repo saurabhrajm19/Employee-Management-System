@@ -1,65 +1,68 @@
 package com.employee.employeemanagementsystem.servicetest;
 
-import com.employee.employeemanagementsystem.controller.UserDetailsController;
-import com.employee.employeemanagementsystem.entities.EmploymentType;
-import com.employee.employeemanagementsystem.entities.JobProfiles;
-import com.employee.employeemanagementsystem.entities.UserDetails;
+import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
-import com.employee.employeemanagementsystem.repository.EmployeeRepository;
 import com.employee.employeemanagementsystem.repository.EmploymentTypeRepository;
-import com.employee.employeemanagementsystem.repository.JobProfilesRepository;
-import com.employee.employeemanagementsystem.repository.UserDetailsRepository;
-import com.employee.employeemanagementsystem.services.EmployeeServices;
 import com.employee.employeemanagementsystem.services.EmploymentTypeServices;
-import com.employee.employeemanagementsystem.services.JobProfilesServices;
-import com.employee.employeemanagementsystem.services.UserDetailsServices;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
+import static org.junit.Assert.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import com.google.gson.Gson;
-
-@RunWith(SpringRunner.class)
-@DataJpaTest
+@RunWith(MockitoJUnitRunner.class)
 public class EmploymentTypeServicesTest {
 
-    @Autowired
-    private TestEntityManager entityManager;
+    @InjectMocks
+    private EmploymentTypeServices employmentTypeServices;
 
-    @Autowired
-    EmploymentTypeRepository employmentTypeRepository;
+    @Mock
+    private EmploymentTypeRepository employmentTypeRepository;
 
     @Test
-    public void TestUserDetails() throws NotFoundException {
-        EmploymentType employmentType = new EmploymentType();
-        employmentType.setEmploymentType("FTE");
-        employmentType.setNoticePeriod(60);
-        entityManager.persist(employmentType);
-        entityManager.flush();
-        System.out.println("yo yoyoyoyoyo\n");
-        System.out.println(employmentTypeRepository.findAll());
+    public void findAllTest() throws IOException, NotFoundException {
+        when(employmentTypeRepository.findAll()).thenReturn(getEmploymentType());
+        List<EmploymentType> employmentTypeList = employmentTypeServices.findAll();
+        assertEquals(2, employmentTypeList.size());
+        assertEquals("FTE", employmentTypeList.get(0).getEmploymentType());
+        assertEquals("STE", employmentTypeList.get(1).getEmploymentType());
+        assertEquals(60, employmentTypeList.get(0).getNoticePeriod());
+        assertEquals(15, employmentTypeList.get(1).getNoticePeriod());
     }
-    public static String readFileAsString(String file)throws Exception
-    {
-        return new String(Files.readAllBytes(Paths.get(file)));
+
+    @Test
+    public void findByIdTest() throws IOException, NotFoundException {
+        EmploymentType employmentType = getEmploymentType().get(0);
+        when(employmentTypeRepository.findById("FTE")).thenReturn(java.util.Optional.ofNullable(employmentType));
+        Optional<EmploymentType> employment = employmentTypeServices.findById("FTE");
+        assertEquals("FTE", employment.get().getEmploymentType());
+        assertEquals(60, employment.get().getNoticePeriod());
+    }
+
+    public static List<EmploymentType> getEmploymentType() throws IOException {
+        String file = "src/test/java/com/employee/employeemanagementsystem/constants/employmentTypeDetails.json";
+        String reader = new String(Files.readAllBytes(Paths.get(file)));
+        JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+        EmploymentType employmentType = new Gson().fromJson(jsonObject.get("EmploymentTypeDetails"), EmploymentType.class);
+        List<EmploymentType> employmentTypeList = new ArrayList<EmploymentType>();
+        employmentTypeList.add(employmentType);
+        EmploymentType newemploymentType = new Gson().fromJson(jsonObject.get("EmploymentTypeDetails"), EmploymentType.class);
+        newemploymentType.setEmploymentType("STE");
+        newemploymentType.setNoticePeriod(15);
+        employmentTypeList.add(newemploymentType);
+        return employmentTypeList;
     }
 }

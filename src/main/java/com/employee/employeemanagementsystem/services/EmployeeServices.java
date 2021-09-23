@@ -82,7 +82,6 @@ public class EmployeeServices {
             throw new NotFoundException("No employee with given id found!");
         }
         String string = employeeRepository.findByEmploymentCode(employmentCode).toString();
-        string += employeeRepository.findByEmploymentCode(employmentCode).getUserDetails().toString();
         return string;
     }
 
@@ -118,8 +117,7 @@ public class EmployeeServices {
             LocalDate currentDate = LocalDate.now();
             employee.setNoticeDate(currentDate);
             employee = employeeRepository.save(employee);
-            return "Noticed on " + currentDate.toString() +"\nYou have a notice period of "
-                    + employee.getEmploymentType().getNoticePeriod();
+            return "Noticed on " + currentDate.toString();
         } else {
             throw new IllegalArgumentException("Already noticed on "+ employee.getNoticeDate());
         }

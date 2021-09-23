@@ -1,0 +1,6 @@
+{
+  "EmploymentTypeDetails" : {
+    "employmentType": "FTE",
+    "noticePeriod": 60
+  }
+}

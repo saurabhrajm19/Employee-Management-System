@@ -5,25 +5,6 @@
     "firstName": "Saurabh",
     "lastName": "Raj",
     "email": "saurabh.raj@hoppipolla.com",
-    "bench": false,
-    "dateOfJoining": "2021-09-22",
-    "UserDetails":{
-      "firstName": "Saurabh",
-      "lastName": "Raj",
-      "addressDetails": "adp",
-      "city": "jsr",
-      "pincode": 849312,
-      "state": "jhar",
-      "primaryContact": 1234567890,
-      "secondaryContact": 9087654321,
-      "totalMonthsOfExperience": 7,
-      "previousCompany": "hashedin",
-      "yearOfGraduation": 2020,
-      "degreeObtainedInGraduation": "Btech",
-      "collegeDetailsGraduation": "ITER",
-      "yearOfPostGraduation": 2022,
-      "degreeObtainedInPostGraduation": "MS",
-      "collegeDetailsPostGraduation": "US"
-    }
+    "bench": false
   }
 }
