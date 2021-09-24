@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -56,22 +57,23 @@ public class UserDetailsControllerTest {
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
-        assertEquals(false, result.getResponse().toString().isEmpty());
+        assertFalse(result.getResponse().toString().isEmpty());
     }
 
     @Test
     public void createUserDetailsTest() throws Exception {
+        String userContent = getUserContent();
         UserDetails userDetails = new UserDetails();
-        userDetails.setLastName("ji");
         //when(userDetailsServices.save(Mockito.any(<userDetails>))).thenReturn(null);
-        when(userDetailsServices.save(userDetails)).thenReturn(userDetails);
+        doNothing().when(userDetailsServices).save(userDetails);
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/userDetails/onBoardSTE")
-                .accept(MediaType.APPLICATION_JSON);
+                .post("/userDetails/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(userContent);
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
-        assertEquals(false, result.getResponse().toString().isEmpty());
+        assertEquals("Done", result.getResponse().getContentAsString());
     }
 
     public static List<UserDetails> getUserDetails() throws IOException {
@@ -86,5 +88,12 @@ public class UserDetailsControllerTest {
         newUserDetails.setLastName("Kreuk");
         userDetailsList.add(newUserDetails);
         return userDetailsList;
+    }
+
+    public static String getUserContent() throws IOException {
+        String file = "src/test/java/com/employee/employeemanagementsystem/constants/userDetails.json";
+        String reader = new String(Files.readAllBytes(Paths.get(file)));
+        JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+        return jsonObject.get("UserDetails").toString();
     }
 }

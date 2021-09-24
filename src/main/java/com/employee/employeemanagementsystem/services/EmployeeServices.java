@@ -1,5 +1,10 @@
 package com.employee.employeemanagementsystem.services;
 
+import com.amazonaws.SDKGlobalConfiguration;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.model.Bucket;
 import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
@@ -17,6 +22,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.io.File;
+import java.nio.file.Paths;
 
 @Service
 public class EmployeeServices {
@@ -79,6 +93,22 @@ public class EmployeeServices {
             userDetails.setJobRole(assignJobRole(employee.getEmploymentCode()));
         employee.setUserDetails(userDetails);
         employeeRepository.save(employee);
+    }
+
+    public static String uploadCertificates() throws Exception{
+        System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
+        AWSCredentials credentials = new BasicAWSCredentials("AKIA46O5RMUWLXWPRVOE", "bBkhpejZiM244X5iRmKBPB4ECvOh0eJ65FL/pL1f");
+
+        System.out.println("one");
+        AmazonS3 s3client = AmazonS3ClientBuilder
+                .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(Regions.AP_SOUTH_1)
+                .build();
+
+        System.out.println("one");
+        List<Bucket> buckets = s3client.listBuckets();
+        return buckets.get(0).toString();
     }
 
     public String fetchEmployeeDetails(String employmentCode) throws NotFoundException {
@@ -311,5 +341,8 @@ public class EmployeeServices {
         }
     }
 
+    public static void main(String[] args) throws Exception {
+        System.out.println(uploadCertificates());
+    }
 }
 

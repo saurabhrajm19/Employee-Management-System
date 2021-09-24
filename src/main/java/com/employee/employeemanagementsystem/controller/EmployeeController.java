@@ -1,6 +1,7 @@
 package com.employee.employeemanagementsystem.controller;
 
 import com.employee.employeemanagementsystem.entities.*;
+import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.services.EmployeeServices;
 import com.google.gson.Gson;
@@ -92,6 +93,11 @@ public class EmployeeController {
         } catch (NotFoundException e) {
             return e.getMessage();
         }
+    }
+
+    @GetMapping(value = "/upload-certificate/")
+    public String uploadCertificates() throws Exception {
+        return employeeServices.uploadCertificates();
     }
 
 }

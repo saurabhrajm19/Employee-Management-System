@@ -18,7 +18,7 @@ public class ScheduleTasks {
     @Autowired
     EmployeeServices employeeServices;
 
-    @Scheduled(cron = "0 0 18 ? * * *")
+    @Scheduled(cron = "0 0 18 ? * *")
     public void disableEmployee() throws NotFoundException {
         List<Employee> employeeList = employeeServices.completesNoticePeriod(LocalDate.now().toString());
         if (!employeeList.isEmpty()){
@@ -32,7 +32,7 @@ public class ScheduleTasks {
         }
     }
 
-    @Scheduled(cron = "0 0 18 ? * * *")
+    @Scheduled(cron = "0 0 18 ? * *")
     public void updateJobRole() throws NotFoundException {
         List<Employee> employeeList = employeeServices.findAll();
         LocalDate currentDate = LocalDate.now();
