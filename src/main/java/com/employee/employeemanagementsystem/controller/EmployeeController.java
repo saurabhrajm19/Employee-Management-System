@@ -1,5 +1,6 @@
 package com.employee.employeemanagementsystem.controller;
 
+import com.amazonaws.SdkClientException;
 import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
@@ -12,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -71,7 +74,7 @@ public class EmployeeController {
         }
     }
 
-    @PutMapping(value = "/update-jobRole/{employmentCode}")
+    @PutMapping(value = "/update-jobRole/")
     public String updateJobRole(@RequestBody String response){
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
         String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
@@ -83,7 +86,7 @@ public class EmployeeController {
         }
     }
 
-    @PutMapping(value = "/assign-bu/{employmentCode}")
+    @PutMapping(value = "/assign-bu/")
     public String assignBusinessUnit(@RequestBody String response){
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
         String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
@@ -95,9 +98,16 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping(value = "/upload-certificate/")
-    public String uploadCertificates() throws Exception {
-        return employeeServices.uploadCertificates();
+    @PostMapping(value = "/upload-certificate/")
+    public String uploadCertificates(@RequestBody String response) {
+        JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
+        String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
+        String filePath = new Gson().fromJson(jsonObject.get("filePath"), String.class);
+        try {
+            return employeeServices.uploadCertificates(filePath, employmentCode);
+        } catch (IOException | SdkClientException e) {
+            return e.getMessage();
+        }
     }
 
 }

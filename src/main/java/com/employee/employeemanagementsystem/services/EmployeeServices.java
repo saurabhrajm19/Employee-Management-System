@@ -1,10 +1,14 @@
 package com.employee.employeemanagementsystem.services;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SDKGlobalConfiguration;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
@@ -15,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,13 +30,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 @Service
@@ -95,20 +99,23 @@ public class EmployeeServices {
         employeeRepository.save(employee);
     }
 
-    public static String uploadCertificates() throws Exception{
+    public String uploadCertificates(String filePath, String employmentCode) throws IOException, SdkClientException {
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
-        AWSCredentials credentials = new BasicAWSCredentials("AKIA46O5RMUWLXWPRVOE", "bBkhpejZiM244X5iRmKBPB4ECvOh0eJ65FL/pL1f");
-
-        System.out.println("one");
-        AmazonS3 s3client = AmazonS3ClientBuilder
+        String[] cred = getAWSCred("C:\\Users\\sauraraj\\Documents\\Employee management System\\credentials.txt");
+        AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
+        AmazonS3 s3Client = AmazonS3ClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(Regions.AP_SOUTH_1)
                 .build();
-
-        System.out.println("one");
-        List<Bucket> buckets = s3client.listBuckets();
-        return buckets.get(0).toString();
+        List<Bucket> buckets = s3Client.listBuckets();
+        PutObjectRequest request = new PutObjectRequest(buckets.get(0).getName(), employmentCode, new File(filePath));
+        ObjectMetadata metadata = new ObjectMetadata();
+        //metadata.setContentType("plain/text");
+        metadata.addUserMetadata("FileInfo", "File for employee with employment code :" + employmentCode);
+        request.setMetadata(metadata);
+        s3Client.putObject(request);
+        return "File Upload Successful.";
     }
 
     public String fetchEmployeeDetails(String employmentCode) throws NotFoundException {
@@ -215,6 +222,12 @@ public class EmployeeServices {
             throw new NotFoundException("No employee onboarded on the given date!");
         }
         return employeeRepository.findByDateOfJoining(localDate);
+    }
+
+    private String[] getAWSCred(String filePath) throws IOException {
+        String reader = new String(Files.readAllBytes(Paths.get(filePath)));
+        String[] arrOfStr = reader.split(",");
+        return arrOfStr;
     }
 
     public String validateUser(UserDetails userDetails, boolean newUser) {
@@ -341,8 +354,5 @@ public class EmployeeServices {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.println(uploadCertificates());
-    }
 }
 
