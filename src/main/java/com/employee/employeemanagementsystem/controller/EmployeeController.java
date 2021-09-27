@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -102,7 +103,7 @@ public class EmployeeController {
     }
 
     @PostMapping(value = "/upload-certificate/")
-    public String uploadCertificates(@RequestBody String response) {
+    public String uploadCertificate(@RequestBody String response) {
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
         String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
         String filePath = new Gson().fromJson(jsonObject.get("filePath"), String.class);
@@ -114,13 +115,25 @@ public class EmployeeController {
     }
 
     @GetMapping(value = "/download-certificate/{fileName}")
-    public ResponseEntity<byte[]> getImage(@PathVariable String fileName) throws IOException {
-        byte[] media = employeeServices.downloadCertificate(fileName);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
-        headers.setContentLength(media.length);
-        return new ResponseEntity<>(media, headers, HttpStatus.OK);
+    public ResponseEntity<byte[]> getImage(@PathVariable String fileName) {
+        try {
+            byte[] media = employeeServices.downloadCertificate(fileName);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            headers.setContentLength(media.length);
+            return new ResponseEntity<>(media, headers, HttpStatus.OK);
+        } catch (IOException | SdkClientException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
+        }
     }
 
+    @DeleteMapping(value = "/delete-certificate/{fileName}")
+    public String deleteCertificate(@PathVariable String fileName) {
+        try {
+            return employeeServices.deleteCertificates(fileName);
+        } catch (IOException | SdkClientException | NotFoundException e) {
+            return e.getMessage();
+        }
+    }
 }
 

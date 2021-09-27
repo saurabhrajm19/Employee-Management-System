@@ -118,7 +118,7 @@ public class EmployeeServices {
         return "File Upload Successful.";
     }
 
-    public byte[] downloadCertificate(String fileName) throws IOException {
+    public byte[] downloadCertificate(String fileName) throws IOException, SdkClientException {
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
         String[] cred = getAWSCred("C:\\Users\\sauraraj\\Documents\\Employee management System\\credentials.txt");
         AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
@@ -139,6 +139,24 @@ public class EmployeeServices {
         BufferedImage imageCopy = ImageIO.read(bis);
         ImageIO.write(imageCopy, "jpg", new File(fileName.concat(".jpg")) );
         return imageBytes;
+    }
+
+    public String deleteCertificates(String fileName) throws IOException, SdkClientException, NotFoundException {
+        System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
+        String[] cred = getAWSCred("C:\\Users\\sauraraj\\Documents\\Employee management System\\credentials.txt");
+        AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
+        AmazonS3 s3Client = AmazonS3ClientBuilder
+                .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(Regions.AP_SOUTH_1)
+                .build();
+        List<Bucket> buckets = s3Client.listBuckets();
+        if(s3Client.doesObjectExist(buckets.get(0).getName(), fileName)){
+            s3Client.deleteObject(buckets.get(0).getName(), fileName);
+        } else {
+            throw new NotFoundException("No file with given fileName found!");
+        }
+        return "File Delete Successful.";
     }
 
     public String fetchEmployeeDetails(String employmentCode) throws NotFoundException {
@@ -377,5 +395,9 @@ public class EmployeeServices {
         }
     }
 
+//    public static void main(String[] args) throws IOException {
+//        EmployeeServices e =new EmployeeServices();
+//        System.out.println(e.deleteCertificates("Saurabh-1009"));
+//    }
 }
 
