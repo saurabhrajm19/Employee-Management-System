@@ -10,7 +10,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,6 +76,7 @@ public class EmployeeController {
         }
     }
 
+
     @PutMapping(value = "/update-jobRole/")
     public String updateJobRole(@RequestBody String response){
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
@@ -108,6 +111,15 @@ public class EmployeeController {
         } catch (IOException | SdkClientException e) {
             return e.getMessage();
         }
+    }
+
+    @GetMapping(value = "/download-certificate/{fileName}")
+    public ResponseEntity<byte[]> getImage(@PathVariable String fileName) throws IOException {
+        byte[] media = employeeServices.downloadCertificate(fileName);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        headers.setContentLength(media.length);
+        return new ResponseEntity<>(media, headers, HttpStatus.OK);
     }
 
 }

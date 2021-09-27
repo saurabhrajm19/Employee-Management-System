@@ -6,21 +6,22 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.*;
 import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.repository.EmployeeRepository;
 import com.employee.employeemanagementsystem.repository.UserDetailsRepository;
 import static com.employee.employeemanagementsystem.myconstants.JobRoles.*;
+
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import javax.persistence.EntityNotFoundException;
-import java.io.File;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -111,11 +112,33 @@ public class EmployeeServices {
         List<Bucket> buckets = s3Client.listBuckets();
         PutObjectRequest request = new PutObjectRequest(buckets.get(0).getName(), employmentCode, new File(filePath));
         ObjectMetadata metadata = new ObjectMetadata();
-        //metadata.setContentType("plain/text");
         metadata.addUserMetadata("FileInfo", "File for employee with employment code :" + employmentCode);
         request.setMetadata(metadata);
         s3Client.putObject(request);
         return "File Upload Successful.";
+    }
+
+    public byte[] downloadCertificate(String fileName) throws IOException {
+        System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
+        String[] cred = getAWSCred("C:\\Users\\sauraraj\\Documents\\Employee management System\\credentials.txt");
+        AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
+        AmazonS3 s3Client = AmazonS3ClientBuilder
+                .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(Regions.AP_SOUTH_1)
+                .build();
+        List<Bucket> buckets = s3Client.listBuckets();
+        S3Object s3object = s3Client.getObject(buckets.get(0).getName(), fileName);
+        InputStream in = s3object.getObjectContent();
+        BufferedImage imageFromAWS = ImageIO.read(in);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(imageFromAWS, "jpg", baos );
+        byte[] imageBytes = baos.toByteArray();
+        in.close();
+        ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+        BufferedImage imageCopy = ImageIO.read(bis);
+        ImageIO.write(imageCopy, "jpg", new File(fileName.concat(".jpg")) );
+        return imageBytes;
     }
 
     public String fetchEmployeeDetails(String employmentCode) throws NotFoundException {
