@@ -32,8 +32,7 @@ public class UserDetailsController {
     public String createUserDetails(@RequestBody UserDetails userDetails) {
         try {
             userDetailsServices.save(userDetails);
-            String response = "Done";
-            return response;
+            return  "Done";
         } catch (NotFoundException | BadDetailsException e) {
             return e.getMessage();
         }
@@ -44,8 +43,7 @@ public class UserDetailsController {
         try {
             userDetails.setEmploymentType("STE");
             userDetailsServices.save(userDetails);
-            String response = "Done";
-            return response;
+            return "Done";
         } catch (NotFoundException | BadDetailsException e) {
             return e.getMessage();
         }
@@ -56,8 +54,7 @@ public class UserDetailsController {
         try {
             userDetails.setEmploymentType("FTE");
             userDetailsServices.save(userDetails);
-            String response = "Done";
-            return response;
+            return "Done";
         } catch (NotFoundException | BadDetailsException e) {
             return e.getMessage();
         }
@@ -68,8 +65,7 @@ public class UserDetailsController {
         try {
             userDetails.setEmploymentType("INT");
             userDetailsServices.save(userDetails);
-            String response = "Done";
-            return response;
+            return "Done";
         } catch (NotFoundException | BadDetailsException e) {
             return e.getMessage();
         }

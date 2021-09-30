@@ -32,8 +32,7 @@ public class JobProfilesServices {
         if (Objects.isNull(jobProfilesRepository.findById(jobRole))) {
             throw new NotFoundException("No job profiles found!");
         }
-        Optional<JobProfiles> jobProfiles = jobProfilesRepository.findById(jobRole);
-        return jobProfiles;
+        return jobProfilesRepository.findById(jobRole);
     }
 }
 

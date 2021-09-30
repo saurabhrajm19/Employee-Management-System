@@ -8,9 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class ScheduleTasks {
@@ -49,7 +48,7 @@ public class ScheduleTasks {
                 totalMonthsOfExperience = Math.abs(period.getMonths()) + employee.getUserDetails().getTotalMonthsOfExperience();
                 employee.getUserDetails().setTotalMonthsOfExperience(totalMonthsOfExperience);
                 jobRole = employeeServices.assignJobRole(employee.getEmploymentCode());
-                if(jobRole != employee.getUserDetails().getJobRole())
+                if(!Objects.equals(jobRole, employee.getUserDetails().getJobRole()))
                     employeeServices.updateJobRole(employee.getEmploymentCode(), jobRole);
                 iterator+=1;
             }

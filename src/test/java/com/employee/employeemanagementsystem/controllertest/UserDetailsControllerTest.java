@@ -1,25 +1,18 @@
 package com.employee.employeemanagementsystem.controllertest;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.employee.employeemanagementsystem.controller.UserDetailsController;
 import com.employee.employeemanagementsystem.entities.UserDetails;
-import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.services.UserDetailsServices;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -64,10 +57,56 @@ public class UserDetailsControllerTest {
     public void createUserDetailsTest() throws Exception {
         String userContent = getUserContent();
         UserDetails userDetails = new UserDetails();
-        //when(userDetailsServices.save(Mockito.any(<userDetails>))).thenReturn(null);
         doNothing().when(userDetailsServices).save(userDetails);
         RequestBuilder request = MockMvcRequestBuilders
                 .post("/userDetails/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(userContent);
+        MvcResult result = mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        assertEquals("Done", result.getResponse().getContentAsString());
+    }
+
+
+
+    @Test
+    public void onBoardSTE() throws Exception {
+        String userContent = getUserContent();
+        UserDetails userDetails = new UserDetails();
+        doNothing().when(userDetailsServices).save(userDetails);
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/userDetails/onBoardSTE")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(userContent);
+        MvcResult result = mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        assertEquals("Done", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void onBoardFTE() throws Exception {
+        String userContent = getUserContent();
+        UserDetails userDetails = new UserDetails();
+        doNothing().when(userDetailsServices).save(userDetails);
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/userDetails/onBoardFTE")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(userContent);
+        MvcResult result = mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        assertEquals("Done", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void onBoardIntern() throws Exception {
+        String userContent = getUserContent();
+        UserDetails userDetails = new UserDetails();
+        doNothing().when(userDetailsServices).save(userDetails);
+        RequestBuilder request = MockMvcRequestBuilders
+                .post("/userDetails/onBoardIntern")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userContent);
         MvcResult result = mockMvc.perform(request)

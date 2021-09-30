@@ -32,8 +32,7 @@ public class EmploymentTypeServices {
         if (Objects.isNull(employmentTypeRepository.findById(employmentType))) {
             throw new NotFoundException("No employment type found!");
         }
-        Optional<EmploymentType> employment = employmentTypeRepository.findById(employmentType);
-        return employment;
+        return employmentTypeRepository.findById(employmentType);
     }
 
 }

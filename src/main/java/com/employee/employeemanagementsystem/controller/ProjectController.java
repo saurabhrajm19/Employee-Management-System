@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.util.List;
 
+import static com.employee.employeemanagementsystem.myconstants.VariableConstants.businessUnitStr;
+
 @RestController
 @RequestMapping("Project")
 public class ProjectController {
@@ -32,11 +34,11 @@ public class ProjectController {
     }
 
     @PostMapping("/")
-    public void createProject(@RequestBody String response)throws ParseException {
+    public void createProject(@RequestBody String response) {
 
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
 
-        BusinessUnit businessUnit = new Gson().fromJson(jsonObject.get("BusinessUnit"), BusinessUnit.class);
+        BusinessUnit businessUnit = new Gson().fromJson(jsonObject.get(businessUnitStr), BusinessUnit.class);
         Project project = new Gson().fromJson(response, Project.class);
         project.setBusinessUnit(businessUnit);
         projectServices.save(project);

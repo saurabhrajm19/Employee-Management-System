@@ -1,20 +1,22 @@
 package com.employee.employeemanagementsystem.services;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SDKGlobalConfiguration;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.repository.EmployeeRepository;
 import com.employee.employeemanagementsystem.repository.UserDetailsRepository;
 import static com.employee.employeemanagementsystem.myconstants.JobRoles.*;
+import static com.employee.employeemanagementsystem.myconstants.VariableConstants.*;
 
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -102,7 +104,7 @@ public class EmployeeServices {
 
     public String uploadCertificates(String filePath, String employmentCode) throws IOException, SdkClientException {
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
-        String[] cred = getAWSCred("C:\\Users\\sauraraj\\Documents\\Employee management System\\credentials.txt");
+        String[] cred = getAWSCred(AWSCredFilePath);
         AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
         AmazonS3 s3Client = AmazonS3ClientBuilder
                 .standard()
@@ -120,7 +122,7 @@ public class EmployeeServices {
 
     public byte[] downloadCertificate(String fileName) throws IOException, SdkClientException {
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
-        String[] cred = getAWSCred("C:\\Users\\sauraraj\\Documents\\Employee management System\\credentials.txt");
+        String[] cred = getAWSCred(AWSCredFilePath);
         AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
         AmazonS3 s3Client = AmazonS3ClientBuilder
                 .standard()
@@ -143,7 +145,7 @@ public class EmployeeServices {
 
     public String deleteCertificates(String fileName) throws IOException, SdkClientException, NotFoundException {
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
-        String[] cred = getAWSCred("C:\\Users\\sauraraj\\Documents\\Employee management System\\credentials.txt");
+        String[] cred = getAWSCred(AWSCredFilePath);
         AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
         AmazonS3 s3Client = AmazonS3ClientBuilder
                 .standard()
@@ -161,14 +163,14 @@ public class EmployeeServices {
 
     public String fetchEmployeeDetails(String employmentCode) throws NotFoundException {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
-            throw new NotFoundException("No employee with given id found!");
+            throw new NotFoundException(noEmployeeFound);
         }
         return employeeRepository.findByEmploymentCode(employmentCode).toString();
     }
 
     public String updateJobRole(String employmentCode, String updatedJobRole) throws NotFoundException {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
-            throw new NotFoundException("No employee with given id found!");
+            throw new NotFoundException(noEmployeeFound);
         }
         Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
         JobProfiles jobProfiles = jobProfilesServices.findById(updatedJobRole).orElseThrow(() -> new EntityNotFoundException("Job role not found" + updatedJobRole));
@@ -179,7 +181,7 @@ public class EmployeeServices {
 
     public String assignBusinessUnit(String employmentCode, String buName) throws NotFoundException {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
-            throw new NotFoundException("No employee with given id found!");
+            throw new NotFoundException(noEmployeeFound);
         }
         Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
         BusinessUnit businessUnit = businessUnitServices.findByBuName(buName);
@@ -190,7 +192,7 @@ public class EmployeeServices {
 
     public String assignJobRole(String employmentCode) throws NotFoundException {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
-            throw new NotFoundException("No employee with given id found!");
+            throw new NotFoundException(noEmployeeFound);
         }
         Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
         int exp = employee.getUserDetails().getTotalMonthsOfExperience()/12;
@@ -218,14 +220,14 @@ public class EmployeeServices {
 
     public void deleteByEmploymentCode(String employmentCode) throws NotFoundException {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
-            throw new NotFoundException("No employee with given id found!");
+            throw new NotFoundException(noEmployeeFound);
         }
         employeeRepository.deleteByEmploymentCode(employmentCode);
     }
 
     public String resignNotice(String employmentCode) throws IllegalArgumentException, NotFoundException {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null){
-            throw new NotFoundException("No employee with the given id found!");
+            throw new NotFoundException(noEmployeeFound);
         }
         Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
         if (!employee.isNoticed()) {
@@ -267,8 +269,7 @@ public class EmployeeServices {
 
     private String[] getAWSCred(String filePath) throws IOException {
         String reader = new String(Files.readAllBytes(Paths.get(filePath)));
-        String[] arrOfStr = reader.split(",");
-        return arrOfStr;
+        return reader.split(",");
     }
 
     public String validateUser(UserDetails userDetails, boolean newUser) {
@@ -347,8 +348,7 @@ public class EmployeeServices {
     public String buildFteId(int id) {
         Date date = new Date();
         SimpleDateFormat year = new SimpleDateFormat("yyyy");
-        String employmentCode = "HOP-" + year.format(date) + "-FTE-" + String.format("%04d", id);
-        return employmentCode;
+        return  "HOP-" + year.format(date) + "-FTE-" + String.format("%04d", id);
     }
 
     private String assignHrRole(int exp) {
@@ -395,9 +395,5 @@ public class EmployeeServices {
         }
     }
 
-//    public static void main(String[] args) throws IOException {
-//        EmployeeServices e =new EmployeeServices();
-//        System.out.println(e.deleteCertificates("Saurabh-1009"));
-//    }
 }
 

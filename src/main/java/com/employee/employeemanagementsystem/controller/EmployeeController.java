@@ -2,9 +2,9 @@ package com.employee.employeemanagementsystem.controller;
 
 import com.amazonaws.SdkClientException;
 import com.employee.employeemanagementsystem.entities.*;
-import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.services.EmployeeServices;
+import static com.employee.employeemanagementsystem.myconstants.VariableConstants.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,10 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 import java.util.List;
@@ -81,7 +78,7 @@ public class EmployeeController {
     @PutMapping(value = "/update-jobRole/")
     public String updateJobRole(@RequestBody String response){
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
-        String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
+        String employmentCode = new Gson().fromJson(jsonObject.get(employmentCodeStr), String.class);
         String updatedJobRole = new Gson().fromJson(jsonObject.get("updatedJobRole"), String.class);
         try {
             return employeeServices.updateJobRole(employmentCode, updatedJobRole);
@@ -93,8 +90,8 @@ public class EmployeeController {
     @PutMapping(value = "/assign-bu/")
     public String assignBusinessUnit(@RequestBody String response){
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
-        String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
-        String businessUnit = new Gson().fromJson(jsonObject.get("businessUnit"), String.class);
+        String employmentCode = new Gson().fromJson(jsonObject.get(employmentCodeStr), String.class);
+        String businessUnit = new Gson().fromJson(jsonObject.get(businessUnitStr), String.class);
         try {
             return employeeServices.assignBusinessUnit(employmentCode, businessUnit);
         } catch (NotFoundException e) {
@@ -105,7 +102,7 @@ public class EmployeeController {
     @PostMapping(value = "/upload-certificate/")
     public String uploadCertificate(@RequestBody String response) {
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
-        String employmentCode = new Gson().fromJson(jsonObject.get("employmentCode"), String.class);
+        String employmentCode = new Gson().fromJson(jsonObject.get(employmentCodeStr), String.class);
         String filePath = new Gson().fromJson(jsonObject.get("filePath"), String.class);
         try {
             return employeeServices.uploadCertificates(filePath, employmentCode);
