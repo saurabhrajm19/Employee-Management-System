@@ -10,9 +10,9 @@ public class JobRoles {
     }
 
     public static class TECHNICAL_ROLES {
-        public static final String SDE_1 = "SDE-I";
-        public static final String SDE_2 = "SDE-II";
-        public static final String SDE_3 = "SDE-III";
+        public static final String SDE_1 = "SDE-1";
+        public static final String SDE_2 = "SDE-2";
+        public static final String SDE_3 = "SDE-3";
         public static final String LEAD = "Lead";
         public static final String EM = "EM";
     }

@@ -36,7 +36,7 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping(value = "/notice/{employmentCode}")
+    @PutMapping(value = "/notice/{employmentCode}")
     public ResponseEntity<String> resignNotice(@PathVariable String employmentCode) {
         try {
             return new ResponseEntity<>(employeeServices.resignNotice(employmentCode), HttpStatus.OK);
@@ -48,11 +48,11 @@ public class EmployeeController {
     }
 
     @GetMapping(value = "/{employmentCode}")
-    public String getEmployeeDetails(@PathVariable String employmentCode) {
+    public ResponseEntity<Object> getEmployeeDetails(@PathVariable String employmentCode) {
         try {
-            return employeeServices.fetchEmployeeDetails(employmentCode);
+            return new ResponseEntity<>(employeeServices.fetchEmployeeDetails(employmentCode), HttpStatus.OK);
         } catch (NotFoundException e) {
-            return e.getMessage();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -112,7 +112,7 @@ public class EmployeeController {
     }
 
     @GetMapping(value = "/download-certificate/{fileName}")
-    public ResponseEntity<byte[]> getImage(@PathVariable String fileName) {
+    public ResponseEntity<byte[]> downloadCertificate(@PathVariable String fileName) {
         try {
             byte[] media = employeeServices.downloadCertificate(fileName);
             HttpHeaders headers = new HttpHeaders();

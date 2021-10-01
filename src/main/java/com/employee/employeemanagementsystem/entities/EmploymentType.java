@@ -1,5 +1,6 @@
 package com.employee.employeemanagementsystem.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ public class EmploymentType {
     private int noticePeriod;
 
     @OneToMany(mappedBy = "employmentType")
+    @JsonIgnore
     private List<Employee> employeeList;
 
 }

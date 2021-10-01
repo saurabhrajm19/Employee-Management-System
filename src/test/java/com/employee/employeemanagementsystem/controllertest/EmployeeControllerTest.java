@@ -2,9 +2,7 @@ package com.employee.employeemanagementsystem.controllertest;
 
 import com.employee.employeemanagementsystem.controller.EmployeeController;
 import com.employee.employeemanagementsystem.entities.Employee;
-import com.employee.employeemanagementsystem.entities.UserDetails;
 import com.employee.employeemanagementsystem.services.EmployeeServices;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -58,7 +56,7 @@ public class EmployeeControllerTest {
     public void resignNoticeTest() throws Exception {
         when(employeeServices.resignNotice("HOP-2021-FTE-0001")).thenReturn("Noticed");
         RequestBuilder request = MockMvcRequestBuilders
-                .get("/employees/notice/HOP-2021-FTE-0001")
+                .put("/employees/notice/HOP-2021-FTE-0001")
                 .accept(MediaType.APPLICATION_JSON);
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -71,7 +69,7 @@ public class EmployeeControllerTest {
     @Test
     public void getEmployeeDetailsTest() throws Exception {
         Employee employee = getEmployeeContent();
-        when(employeeServices.fetchEmployeeDetails("HOP-2021-FTE-0001")).thenReturn(employee.toString());
+        when(employeeServices.fetchEmployeeDetails("HOP-2021-FTE-0001")).thenReturn(employee);
         RequestBuilder request = MockMvcRequestBuilders
                 .get("/employees/HOP-2021-FTE-0001")
                 .accept(MediaType.APPLICATION_JSON);

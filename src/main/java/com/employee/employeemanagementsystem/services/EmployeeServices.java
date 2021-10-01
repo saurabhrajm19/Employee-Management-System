@@ -13,6 +13,7 @@ import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.repository.EmployeeRepository;
+import com.employee.employeemanagementsystem.repository.EmploymentTypeRepository;
 import com.employee.employeemanagementsystem.repository.UserDetailsRepository;
 import static com.employee.employeemanagementsystem.myconstants.JobRoles.*;
 import static com.employee.employeemanagementsystem.myconstants.VariableConstants.*;
@@ -161,11 +162,11 @@ public class EmployeeServices {
         return "File Delete Successful.";
     }
 
-    public String fetchEmployeeDetails(String employmentCode) throws NotFoundException {
+    public Employee fetchEmployeeDetails(String employmentCode) throws NotFoundException {
         if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
             throw new NotFoundException(noEmployeeFound);
         }
-        return employeeRepository.findByEmploymentCode(employmentCode).toString();
+        return employeeRepository.findByEmploymentCode(employmentCode);
     }
 
     public String updateJobRole(String employmentCode, String updatedJobRole) throws NotFoundException {
@@ -175,6 +176,7 @@ public class EmployeeServices {
         Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
         JobProfiles jobProfiles = jobProfilesServices.findById(updatedJobRole).orElseThrow(() -> new EntityNotFoundException("Job role not found" + updatedJobRole));
         employee.setJobProfiles(jobProfiles);
+        employee.getUserDetails().setJobRole(updatedJobRole);
         employeeRepository.save(employee);
         return employee.getJobProfiles().getJobRole();
     }
@@ -248,9 +250,12 @@ public class EmployeeServices {
         }
         LocalDate toBeCompleted = LocalDate.parse(date, formatter);
         List<Employee> noticedEmployees = employeeRepository.findByNoticed(true);
-        LocalDate fteNoticedDate = toBeCompleted.minusDays(60);
-        LocalDate steNoticedDate = toBeCompleted.minusDays(15);
-        LocalDate internNoticedDate = toBeCompleted.minusDays(30);
+        EmploymentType employmentTypeFTE = employmentTypeServices.findById("FTE").orElseThrow(() -> new EntityNotFoundException("EmploymentType type not found"));
+        EmploymentType employmentTypeSTE = employmentTypeServices.findById("STE").orElseThrow(() -> new EntityNotFoundException("EmploymentType type not found"));
+        EmploymentType employmentTypeIntern = employmentTypeServices.findById("INT").orElseThrow(() -> new EntityNotFoundException("EmploymentType type not found"));
+        LocalDate fteNoticedDate = toBeCompleted.minusDays(employmentTypeFTE.getNoticePeriod());
+        LocalDate steNoticedDate = toBeCompleted.minusDays(employmentTypeSTE.getNoticePeriod());
+        LocalDate internNoticedDate = toBeCompleted.minusDays(employmentTypeIntern.getNoticePeriod());
         noticedEmployees = noticedEmployees.stream().filter(x -> x.getNoticeDate().equals(fteNoticedDate) || x.getNoticeDate().equals(steNoticedDate)
                 || x.getNoticeDate().equals(internNoticedDate)).collect(Collectors.toList());
         if (noticedEmployees.isEmpty()) {
@@ -274,31 +279,31 @@ public class EmployeeServices {
 
     public String validateUser(UserDetails userDetails, boolean newUser) {
         if (newUser) {
-            if (userDetails.getFirstName() == null) {
+            if (userDetails.getFirstName() == null || userDetails.getFirstName().length() == 0) {
                 return "First name cannot be null";
             }
-            if (userDetails.getLastName() == null) {
+            if (userDetails.getLastName() == null || userDetails.getLastName().length()==0) {
                 return "Last name cannot be null";
             }
             if (Objects.isNull(userDetails.getPrimaryContact())) {
                 return "Primary contact field cannot be empty";
             }
-            if (userDetails.getAddressDetails() == null) {
+            if (userDetails.getAddressDetails() == null || userDetails.getAddressDetails().length()==0) {
                 return "Address cannot be empty";
             }
-            if (userDetails.getCity() == null) {
+            if (userDetails.getCity() == null || userDetails.getCity().length()==0) {
                 return "City cannot be empty";
             }
             if (Objects.isNull(userDetails.getPincode()) || userDetails.getPincode() == 0) {
                 return "Pincode cannot be empty";
             }
-            if (userDetails.getState() == null) {
+            if (userDetails.getState() == null || userDetails.getState().length()==0) {
                 return "State cannot be empty";
             }
             if (Objects.isNull(userDetails.getTotalMonthsOfExperience())) {
                 return "Total months of experience cannot be empty";
             }
-            if (userDetails.getEmploymentType() == null) {
+            if (userDetails.getEmploymentType() == null || userDetails.getEmploymentType().length()==0) {
                 return "Employment type cannot be empty";
             }
         }

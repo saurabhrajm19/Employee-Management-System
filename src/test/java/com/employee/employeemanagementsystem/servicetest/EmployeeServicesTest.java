@@ -16,6 +16,8 @@ import static org.junit.Assert.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -47,13 +49,15 @@ public class EmployeeServicesTest {
         Employee employee = getEmployee();
         employee.setUserDetails(getUserDetails());
         when(employeeRepository.findByEmploymentCode("HOP-2021-FTE-0001")).thenReturn(employee);
-        String details = employeeServices.fetchEmployeeDetails("HOP-2021-FTE-0001");
+        String details = employeeServices.fetchEmployeeDetails("HOP-2021-FTE-0001").toString();
         assertEquals(employee.toString(), details);
     }
 
     @Test
     public void updateJobRoleTest() throws IOException, NotFoundException {
         Employee employee = getEmployee();
+        UserDetails userDetails = getUserDetails();
+        employee.setUserDetails(userDetails);
         when(employeeRepository.findByEmploymentCode("HOP-2021-FTE-0001")).thenReturn(employee);
         JobProfiles jobProfiles = new JobProfiles();
         jobProfiles.setJobRole("SDE-2");

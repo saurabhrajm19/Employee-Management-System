@@ -27,8 +27,8 @@ public class UserDetailsServices {
     }
 
     public void save(UserDetails userDetails) throws BadDetailsException, NotFoundException {
-        userDetailsRepository.save(userDetails);
         employeeServices.save(userDetails);
+        //userDetailsRepository.save(userDetails);
     }
 
 
