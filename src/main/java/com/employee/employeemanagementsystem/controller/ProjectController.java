@@ -11,10 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.util.List;
 
-import static com.employee.employeemanagementsystem.myconstants.VariableConstants.businessUnitStr;
+import static com.employee.employeemanagementsystem.myconstants.Constants.businessUnitStr;
 
 @RestController
 @RequestMapping("Project")

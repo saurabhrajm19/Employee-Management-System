@@ -4,7 +4,7 @@ import com.amazonaws.SdkClientException;
 import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.services.EmployeeServices;
-import static com.employee.employeemanagementsystem.myconstants.VariableConstants.*;
+import static com.employee.employeemanagementsystem.myconstants.Constants.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -106,7 +106,7 @@ public class EmployeeController {
         String filePath = new Gson().fromJson(jsonObject.get("filePath"), String.class);
         try {
             return employeeServices.uploadCertificates(filePath, employmentCode);
-        } catch (IOException | SdkClientException e) {
+        } catch (IOException | SdkClientException | NotFoundException e) {
             return e.getMessage();
         }
     }
@@ -119,7 +119,7 @@ public class EmployeeController {
             headers.setContentType(MediaType.IMAGE_PNG);
             headers.setContentLength(media.length);
             return new ResponseEntity<>(media, headers, HttpStatus.OK);
-        } catch (IOException | SdkClientException e) {
+        } catch (IOException | SdkClientException | NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
         }
     }

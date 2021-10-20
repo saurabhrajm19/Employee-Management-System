@@ -18,7 +18,7 @@ public class BusinessUnitController {
     private BusinessUnitServices businessUnitServices;
 
     @GetMapping("/")
-    public ResponseEntity<Object> getAllBusinessUnits(){
+    public ResponseEntity<Object> getAllBusinessUnits() {
         try {
             List<BusinessUnit> businessUnitList = businessUnitServices.findAll();
             return new ResponseEntity<>(businessUnitList, HttpStatus.OK);
@@ -28,7 +28,7 @@ public class BusinessUnitController {
     }
 
     @PostMapping("/")
-    public void createBusinessUnit(@RequestBody BusinessUnit businessUnit){
+    public void createBusinessUnit(@RequestBody BusinessUnit businessUnit) {
         businessUnitServices.save(businessUnit);
     }
 }

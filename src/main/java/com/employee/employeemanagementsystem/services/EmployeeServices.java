@@ -13,10 +13,9 @@ import com.employee.employeemanagementsystem.entities.*;
 import com.employee.employeemanagementsystem.exceptions.BadDetailsException;
 import com.employee.employeemanagementsystem.exceptions.NotFoundException;
 import com.employee.employeemanagementsystem.repository.EmployeeRepository;
-import com.employee.employeemanagementsystem.repository.EmploymentTypeRepository;
 import com.employee.employeemanagementsystem.repository.UserDetailsRepository;
 import static com.employee.employeemanagementsystem.myconstants.JobRoles.*;
-import static com.employee.employeemanagementsystem.myconstants.VariableConstants.*;
+import static com.employee.employeemanagementsystem.myconstants.Constants.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -103,7 +102,10 @@ public class EmployeeServices {
         employeeRepository.save(employee);
     }
 
-    public String uploadCertificates(String filePath, String employmentCode) throws IOException, SdkClientException {
+    public String uploadCertificates(String filePath, String employmentCode) throws IOException, SdkClientException, NotFoundException {
+        if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
+            throw new NotFoundException(noEmployeeFound);
+        }
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
         String[] cred = getAWSCred(AWSCredFilePath);
         AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
@@ -121,7 +123,10 @@ public class EmployeeServices {
         return "File Upload Successful.";
     }
 
-    public byte[] downloadCertificate(String fileName) throws IOException, SdkClientException {
+    public byte[] downloadCertificate(String fileName) throws IOException, SdkClientException, NotFoundException {
+        if (employeeRepository.findByEmploymentCode(fileName) == null) {
+            throw new NotFoundException(noEmployeeFound);
+        }
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
         String[] cred = getAWSCred(AWSCredFilePath);
         AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
@@ -145,6 +150,9 @@ public class EmployeeServices {
     }
 
     public String deleteCertificates(String fileName) throws IOException, SdkClientException, NotFoundException {
+        if (employeeRepository.findByEmploymentCode(fileName) == null) {
+            throw new NotFoundException(noEmployeeFound);
+        }
         System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true");
         String[] cred = getAWSCred(AWSCredFilePath);
         AWSCredentials credentials = new BasicAWSCredentials(cred[0], cred[1]);
@@ -228,7 +236,7 @@ public class EmployeeServices {
     }
 
     public String resignNotice(String employmentCode) throws IllegalArgumentException, NotFoundException {
-        if (employeeRepository.findByEmploymentCode(employmentCode) == null){
+        if (employeeRepository.findByEmploymentCode(employmentCode) == null) {
             throw new NotFoundException(noEmployeeFound);
         }
         Employee employee = employeeRepository.findByEmploymentCode(employmentCode);
@@ -245,19 +253,21 @@ public class EmployeeServices {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public List<Employee> completesNoticePeriod(String date) throws NotFoundException{
-        if (employeeRepository.findByNoticed(true).isEmpty()){
+        List<Employee> noticedEmployees = employeeRepository.findByNoticed(true);
+        if (noticedEmployees.isEmpty()) {
             throw new NotFoundException("No employee in notice period found!");
         }
         LocalDate toBeCompleted = LocalDate.parse(date, formatter);
-        List<Employee> noticedEmployees = employeeRepository.findByNoticed(true);
+
         EmploymentType employmentTypeFTE = employmentTypeServices.findById("FTE").orElseThrow(() -> new EntityNotFoundException("EmploymentType type not found"));
         EmploymentType employmentTypeSTE = employmentTypeServices.findById("STE").orElseThrow(() -> new EntityNotFoundException("EmploymentType type not found"));
         EmploymentType employmentTypeIntern = employmentTypeServices.findById("INT").orElseThrow(() -> new EntityNotFoundException("EmploymentType type not found"));
         LocalDate fteNoticedDate = toBeCompleted.minusDays(employmentTypeFTE.getNoticePeriod());
         LocalDate steNoticedDate = toBeCompleted.minusDays(employmentTypeSTE.getNoticePeriod());
         LocalDate internNoticedDate = toBeCompleted.minusDays(employmentTypeIntern.getNoticePeriod());
-        noticedEmployees = noticedEmployees.stream().filter(x -> x.getNoticeDate().equals(fteNoticedDate) || x.getNoticeDate().equals(steNoticedDate)
-                || x.getNoticeDate().equals(internNoticedDate)).collect(Collectors.toList());
+
+        noticedEmployees = noticedEmployees.stream().filter(x -> (x.getNoticeDate().equals(fteNoticedDate) && x.getEmploymentType().getEmploymentType().equals("FTE")) || (x.getNoticeDate().equals(steNoticedDate) && x.getEmploymentType().getEmploymentType().equals("STE"))
+                || (x.getNoticeDate().equals(internNoticedDate) && x.getEmploymentType().getEmploymentType().equals("INT"))).collect(Collectors.toList());
         if (noticedEmployees.isEmpty()) {
             throw new NotFoundException("No employee completing their notice period on the given date");
         }
